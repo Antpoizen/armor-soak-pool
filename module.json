@@ -1,0 +1,50 @@
+{
+  "id": "armor-soak-pool",
+  "title": "PF1e Armor Soak Pool",
+  "description": "Adds a manual armor-based Soak pool for PF1e Wounds and Vigor games.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Matthew Liss"
+    }
+  ],
+  "url": "https://github.com/Antpoizen/armor-soak-pool",
+  "manifest": "https://github.com/Antpoizen/armor-soak-pool/releases/latest/download/module.json",
+  "download": "https://github.com/Antpoizen/armor-soak-pool/releases/download/1.0.0/PF1e-Armor-Soak-Pool-v1.0.0.zip",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12.331",
+    "maximum": "12"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf1",
+        "type": "system",
+        "compatibility": {
+          "minimum": "11.11",
+          "verified": "11.11",
+          "maximum": "11.11"
+        }
+      }
+    ]
+  },
+  "system": [
+    "pf1"
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/armor-soak-pool.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "readme": "README.md",
+  "license": "LICENSE"
+}

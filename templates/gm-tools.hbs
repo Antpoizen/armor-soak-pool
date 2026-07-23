@@ -1,0 +1,23 @@
+<div class="armor-soak-gm">
+  {{#unless isGM}}<p>{{localize "armor-soak-pool.warnings.gmOnly"}}</p>{{/unless}}
+  {{#if isGM}}
+  <div class="armor-soak-gm-actions">
+    <button type="button" data-action="recalculate-all"><i class="fas fa-sync-alt"></i> {{localize "armor-soak-pool.gmTools.recalculateAll"}}</button>
+    <button type="button" data-action="refill-combatants"><i class="fas fa-battery-full"></i> {{localize "armor-soak-pool.gmTools.refillCombatants"}}</button>
+    <button type="button" data-action="clear-all"><i class="fas fa-eraser"></i> {{localize "armor-soak-pool.gmTools.clearAll"}}</button>
+    <button type="button" data-action="export"><i class="fas fa-file-export"></i> {{localize "armor-soak-pool.common.export"}}</button>
+    <button type="button" data-action="import"><i class="fas fa-file-import"></i> {{localize "armor-soak-pool.common.import"}}</button>
+    <button type="button" data-action="reset-flags"><i class="fas fa-trash"></i> {{localize "armor-soak-pool.gmTools.resetFlags"}}</button>
+  </div>
+  <table>
+    <thead><tr><th>{{localize "armor-soak-pool.fields.actor"}}</th><th>{{localize "armor-soak-pool.fields.current"}}</th><th>{{localize "armor-soak-pool.fields.max"}}</th><th>{{localize "armor-soak-pool.fields.armorSoak"}}</th><th>{{localize "armor-soak-pool.fields.naturalSoak"}}</th><th>{{localize "armor-soak-pool.fields.enabled"}}</th></tr></thead>
+    <tbody>
+      {{#each actors}}
+      <tr class="{{#if invalid}}armor-soak-warning{{/if}}">
+        <td>{{actor.name}}</td><td>{{soak.current}}</td><td>{{soak.max}}</td><td>{{soak.armorSoak}}</td><td>{{soak.naturalSoak}}</td><td>{{#if soak.enabled}}✓{{else}}—{{/if}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{/if}}
+</div>

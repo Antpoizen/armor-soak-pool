@@ -1,0 +1,16 @@
+<form class="armor-soak-damage-form">
+  <p>{{localize "armor-soak-pool.dialogs.damage.instructions"}}</p>
+  <div class="armor-soak-dialog-summary">
+    <div><strong>{{localize "armor-soak-pool.fields.current"}}</strong><span>{{data.current}}</span></div>
+    <div><strong>{{localize "armor-soak-pool.fields.max"}}</strong><span>{{data.max}}</span></div>
+  </div>
+  <div class="form-group">
+    <label>{{localize "armor-soak-pool.fields.damageAmount"}}</label>
+    <input type="number" name="amount" min="0" step="1" value="{{amount}}">
+  </div>
+  <div class="form-group">
+    <label>{{localize "armor-soak-pool.fields.splitSoakAmount"}}</label>
+    <input type="number" name="soakAmount" min="0" step="1" value="0">
+    <p class="notes">{{localize "armor-soak-pool.dialogs.damage.splitHint"}}</p>
+  </div>
+</form>
