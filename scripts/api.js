@@ -16,6 +16,12 @@ export async function recalculateSoak(actor, { preserveRatio = false, refill = f
   if (refill) current = calculated.max;
   else if (preserveRatio && old.max > 0) current = Math.round((old.current / old.max) * calculated.max);
   current = clampNumber(current, 0, game.settings.get(MODULE_ID, "allowOverflow") ? Number.MAX_SAFE_INTEGER : calculated.max);
+
+  const coreChanged = ["max", "armorSoak", "naturalSoak", "armorMultiplier", "armorAc", "naturalArmor", "hitDice"]
+    .some(k => Number(old[k] ?? 0) !== Number(calculated[k] ?? 0));
+  const currentChanged = Number(old.current ?? 0) !== Number(current ?? 0);
+  if (!coreChanged && !currentChanged) return old;
+
   const data = await setSoakFlagData(actor, { ...old, ...calculated, current, lastCalculated: new Date().toISOString() });
   Hooks.callAll(HOOKS.CALCULATED, actor, data, old);
   if (chat) await renderSoakChatCard(actor, "recalculate", { old, data });

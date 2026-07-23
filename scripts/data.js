@@ -8,7 +8,9 @@ export function localize(key, data = {}) {
 }
 
 export function debug(...args) {
-  if (game.settings?.get(MODULE_ID, "debug")) console.log(`${MODULE_ID} |`, ...args);
+  try {
+    if (game.settings?.settings?.has?.(`${MODULE_ID}.debug`) && game.settings.get(MODULE_ID, "debug")) console.log(`${MODULE_ID} |`, ...args);
+  } catch (_) { /* Setting may not be registered during early init failures. */ }
 }
 
 export function clampNumber(value, min = 0, max = Number.MAX_SAFE_INTEGER) {
@@ -44,29 +46,48 @@ export function getSoakData(actor) {
   };
 }
 
+function sameSoakData(a, b) {
+  const keys = [
+    "current",
+    "max",
+    "armorSoak",
+    "naturalSoak",
+    "armorMultiplier",
+    "armorAc",
+    "naturalArmor",
+    "hitDice",
+    "enabled",
+    "autoRefill",
+    "lastCalculated",
+    "lastRefillKey"
+  ];
+  return keys.every(k => (a?.[k] ?? null) === (b?.[k] ?? null));
+}
+
 export async function setSoakFlagData(actor, data) {
   if (!actor) return null;
-  const merged = foundry.utils.mergeObject(getSoakData(actor), data, { inplace: false });
-  merged.current = clampNumber(merged.current, 0, game.settings.get(MODULE_ID, "allowOverflow") ? Number.MAX_SAFE_INTEGER : merged.max);
+  const oldData = getSoakData(actor);
+  const merged = foundry.utils.mergeObject(oldData, data, { inplace: false });
   merged.max = clampNumber(merged.max);
+  merged.current = clampNumber(merged.current, 0, game.settings.get(MODULE_ID, "allowOverflow") ? Number.MAX_SAFE_INTEGER : merged.max);
   merged.armorSoak = clampNumber(merged.armorSoak);
   merged.naturalSoak = clampNumber(merged.naturalSoak);
   merged.armorMultiplier = clampNumber(merged.armorMultiplier);
   merged.armorAc = clampNumber(merged.armorAc);
   merged.naturalArmor = clampNumber(merged.naturalArmor);
   merged.hitDice = clampNumber(merged.hitDice);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.CURRENT, merged.current);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.MAX, merged.max);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.ARMOR_SOAK, merged.armorSoak);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.NATURAL_SOAK, merged.naturalSoak);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.ARMOR_MULTIPLIER, merged.armorMultiplier);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.ARMOR_AC, merged.armorAc);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.NATURAL_ARMOR, merged.naturalArmor);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.HIT_DICE, merged.hitDice);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.ENABLED, merged.enabled);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.AUTO_REFILL, merged.autoRefill);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.LAST_CALCULATED, merged.lastCalculated);
-  await actor.setFlag(FLAG_SCOPE, FLAGS.LAST_REFILL_KEY, merged.lastRefillKey);
+  merged.enabled = merged.enabled !== false;
+  merged.autoRefill = merged.autoRefill !== false;
+  merged.lastCalculated = merged.lastCalculated ?? null;
+  merged.lastRefillKey = merged.lastRefillKey ?? null;
+
+  // One actor.update is much safer than many actor.setFlag calls. The original
+  // implementation wrote each flag separately, which could cause a burst of
+  // document updates and repeated sheet renders in Foundry/PF1e. If nothing has
+  // changed, do not update at all; this prevents render-update-render loops.
+  if (sameSoakData(oldData, merged)) return merged;
+
+  await actor.update({ [`flags.${FLAG_SCOPE}`]: merged }, { render: false });
   return merged;
 }
 
