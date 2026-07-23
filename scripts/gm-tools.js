@@ -22,11 +22,14 @@ export class ArmorSoakGMTools extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
+    html.find("[data-action='recalculate-selected']").on("click", () => this.recalculateSelected());
+    html.find("[data-action='recalculate-pcs']").on("click", () => this.recalculatePCs());
     html.find("[data-action='recalculate-all']").on("click", () => this.recalculateAll());
     html.find("[data-action='refill-combatants']").on("click", () => this.refillCombatants());
     html.find("[data-action='clear-all']").on("click", () => this.clearAll());
     html.find("[data-action='export']").on("click", () => this.exportData());
     html.find("[data-action='import']").on("click", () => this.importData());
+    html.find("[data-action='audit']").on("click", () => this.audit());
     html.find("[data-action='reset-flags']").on("click", () => this.resetFlags());
   }
 
@@ -37,6 +40,21 @@ export class ArmorSoakGMTools extends FormApplication {
    */
   async _updateObject(_event, _formData) {
     return undefined;
+  }
+
+  async recalculateSelected() {
+    if (!game.user.isGM) return;
+    const actor = canvas?.tokens?.controlled?.[0]?.actor;
+    if (!actor) return ui.notifications.warn(game.i18n.localize(`${MODULE_ID}.gmTools.noSelected`));
+    await recalculateSoak(actor, { preserveRatio: false, refill: false, chat: false });
+    this.render(false);
+  }
+
+  async recalculatePCs() {
+    if (!game.user.isGM) return;
+    for (const actor of game.actors ?? []) if (actor.type === "character") await recalculateSoak(actor, { preserveRatio: false, refill: false, chat: false });
+    ui.notifications.info(game.i18n.localize(`${MODULE_ID}.gmTools.recalculated`));
+    this.render(false);
   }
 
   async recalculateAll() {
@@ -57,6 +75,17 @@ export class ArmorSoakGMTools extends FormApplication {
     if (!game.user.isGM) return;
     for (const actor of game.actors ?? []) await setSoakFlagData(actor, { current: 0, max: 0, armorSoak: 0, naturalSoak: 0 });
     ui.notifications.info(game.i18n.localize(`${MODULE_ID}.gmTools.cleared`));
+    this.render(false);
+  }
+
+  async audit() {
+    if (!game.user.isGM) return;
+    let count = 0;
+    for (const actor of game.actors ?? []) {
+      const soak = getSoakData(actor);
+      if (soak.current > soak.max || soak.current < 0 || soak.max < 0) count++;
+    }
+    ui.notifications.info(game.i18n.format(`${MODULE_ID}.gmTools.auditComplete`, { count }));
     this.render(false);
   }
 

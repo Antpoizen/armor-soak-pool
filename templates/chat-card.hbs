@@ -1,13 +1,26 @@
 <div class="armor-soak-chat-card armor-soak-chat-{{type}}">
   <h3><i class="fas fa-shield-alt"></i> {{title}}</h3>
   <p><strong>{{localize "armor-soak-pool.fields.actor"}}:</strong> {{actorName}}</p>
+
   <div class="armor-soak-chat-grid">
-    <div><strong>{{localize "armor-soak-pool.fields.previous"}}</strong><span>{{old.current}}</span></div>
-    <div><strong>{{localize "armor-soak-pool.fields.current"}}</strong><span>{{data.current}}</span></div>
-    <div><strong>{{localize "armor-soak-pool.fields.max"}}</strong><span>{{data.max}}</span></div>
-    {{#if amount}}<div><strong>{{localize "armor-soak-pool.fields.damageAmount"}}</strong><span>{{amount}}</span></div>{{/if}}
-    {{#if absorbed}}<div><strong>{{localize "armor-soak-pool.fields.absorbed"}}</strong><span>{{absorbed}}</span></div>{{/if}}
-    {{#if overflow}}<div><strong>{{localize "armor-soak-pool.fields.overflow"}}</strong><span>{{overflow}}</span></div>{{/if}}
+    {{#if isDamage}}
+      <div><strong>{{localize "armor-soak-pool.fields.absorbed"}}</strong><span>{{absorbed}}</span></div>
+      <div><strong>{{localize "armor-soak-pool.fields.current"}}</strong><span>{{data.current}}</span></div>
+      {{#if showOverflow}}<div><strong>{{localize "armor-soak-pool.fields.overflow"}}</strong><span>{{overflow}}</span></div>{{/if}}
+      {{#if reason}}<div><strong>{{localize "armor-soak-pool.fields.result"}}</strong><span>{{reason}}</span></div>{{/if}}
+    {{/if}}
+    {{#if isRefill}}
+      <div><strong>{{localize "armor-soak-pool.fields.restored"}}</strong><span>{{restored}}</span></div>
+      <div><strong>{{localize "armor-soak-pool.fields.current"}}</strong><span>{{data.current}}</span></div>
+    {{/if}}
+    {{#if isAdjust}}
+      <div><strong>{{localize "armor-soak-pool.fields.current"}}</strong><span>{{data.current}}</span></div>
+    {{/if}}
+    {{#if isRecalculate}}
+      <div><strong>{{localize "armor-soak-pool.fields.current"}}</strong><span>{{data.current}}</span></div>
+      <div><strong>{{localize "armor-soak-pool.fields.max"}}</strong><span>{{data.max}}</span></div>
+    {{/if}}
   </div>
+
   {{#if automatic}}<p class="notes">{{localize "armor-soak-pool.chat.automatic"}}</p>{{/if}}
 </div>

@@ -21,7 +21,7 @@ export async function openDamageDialog(actor, amount = 0, options = {}) {
           label: game.i18n.localize(`${MODULE_ID}.dialogs.damage.applySoak`),
           callback: async (html) => {
             const value = Number(html.find('[name="amount"]').val() ?? amount);
-            resolve(await applyDamageToSoak(actor, value));
+            resolve(await applyDamageToSoak(actor, value, { reason: "applyToSoak" }));
           }
         },
         normal: {

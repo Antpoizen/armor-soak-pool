@@ -2,8 +2,11 @@
   {{#unless isGM}}<p>{{localize "armor-soak-pool.warnings.gmOnly"}}</p>{{/unless}}
   {{#if isGM}}
   <div class="armor-soak-gm-actions">
+    <button type="button" data-action="recalculate-selected"><i class="fas fa-crosshairs"></i> {{localize "armor-soak-pool.gmTools.recalculateSelected"}}</button>
+    <button type="button" data-action="recalculate-pcs"><i class="fas fa-users"></i> {{localize "armor-soak-pool.gmTools.recalculatePCs"}}</button>
     <button type="button" data-action="recalculate-all"><i class="fas fa-sync-alt"></i> {{localize "armor-soak-pool.gmTools.recalculateAll"}}</button>
     <button type="button" data-action="refill-combatants"><i class="fas fa-battery-full"></i> {{localize "armor-soak-pool.gmTools.refillCombatants"}}</button>
+    <button type="button" data-action="audit"><i class="fas fa-clipboard-check"></i> {{localize "armor-soak-pool.gmTools.audit"}}</button>
     <button type="button" data-action="clear-all"><i class="fas fa-eraser"></i> {{localize "armor-soak-pool.gmTools.clearAll"}}</button>
     <button type="button" data-action="export"><i class="fas fa-file-export"></i> {{localize "armor-soak-pool.common.export"}}</button>
     <button type="button" data-action="import"><i class="fas fa-file-import"></i> {{localize "armor-soak-pool.common.import"}}</button>

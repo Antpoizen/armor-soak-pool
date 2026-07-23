@@ -54,8 +54,27 @@ function patchActorDamageWorkflow() {
     if (!Number.isFinite(maybeAmount) || maybeAmount <= 0) return originalApplyDamage.call(this, ...args);
     const result = await openDamageDialog(this, maybeAmount, { patched: true });
     if (result === null) return null;
-    if (result?.normal || result?.remaining > 0) return originalApplyDamage.call(this, ...args);
+    if (result?.normal) return originalApplyDamage.call(this, ...args);
+    if (result?.remaining > 0) {
+      const adjusted = adjustDamageArgs(args, result.remaining);
+      if (adjusted) return originalApplyDamage.call(this, ...adjusted);
+      ui.notifications.info(game.i18n.format(`${MODULE_ID}.info.splitRemaining`, { remaining: result.remaining }));
+      return result;
+    }
     return result;
   };
   console.log(`${MODULE_ID} | Optional Actor.applyDamage patch enabled.`);
+}
+
+function adjustDamageArgs(args, remaining) {
+  const cloned = foundry.utils.deepClone(args);
+  if (typeof cloned[0] === "number") {
+    cloned[0] = remaining;
+    return cloned;
+  }
+  if (typeof cloned[0] === "object" && cloned[0] !== null) {
+    if ("damage" in cloned[0]) { cloned[0].damage = remaining; return cloned; }
+    if ("amount" in cloned[0]) { cloned[0].amount = remaining; return cloned; }
+  }
+  return null;
 }

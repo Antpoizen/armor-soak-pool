@@ -8,7 +8,7 @@ export function getMaxSoak(actor) { return getSoakData(actor).max; }
 export function getSoakBreakdown(actor) { return getSoakData(actor); }
 export function calculateMaxSoak(actor) { return calc(actor); }
 
-export async function recalculateSoak(actor, { preserveRatio = false, refill = false, chat = false } = {}) {
+export async function recalculateSoak(actor, { preserveRatio = false, refill = false, chat = false, render = true } = {}) {
   if (!actor || !canControlActor(actor, "adjust")) return null;
   const old = getSoakData(actor);
   const calculated = calc(actor);
@@ -19,7 +19,7 @@ export async function recalculateSoak(actor, { preserveRatio = false, refill = f
   const data = await setSoakFlagData(actor, { ...old, ...calculated, current, lastCalculated: new Date().toISOString() });
   Hooks.callAll(HOOKS.CALCULATED, actor, data, old);
   if (chat) await renderSoakChatCard(actor, "recalculate", { old, data });
-  actor.sheet?.render(false);
+  if (render) actor.sheet?.render(false);
   return data;
 }
 

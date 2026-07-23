@@ -105,31 +105,75 @@ export function getNaturalArmor(actor) {
   return 0;
 }
 
+function stringifyField(value) {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "object") {
+    const parts = [value.value, value.id, value.type, value.category, value.label, value.name];
+    return parts.map(v => String(v ?? "")).join(" ").toLowerCase();
+  }
+  return String(value ?? "").toLowerCase();
+}
+
 function itemIsEquipped(item) {
   return Boolean(getPropertySafe(item, "system.equipped") ?? getPropertySafe(item, "system.carried") ?? false);
 }
 
 function itemIsArmor(item) {
   if (!item || item.type !== "equipment") return false;
-  const subtype = String(getPropertySafe(item, "system.subType") ?? getPropertySafe(item, "system.subtype") ?? getPropertySafe(item, "system.equipmentType") ?? "").toLowerCase();
-  const armorType = String(getPropertySafe(item, "system.armor.type") ?? getPropertySafe(item, "system.armorType") ?? "").toLowerCase();
-  const slot = String(getPropertySafe(item, "system.slot") ?? "").toLowerCase();
-  const name = String(item.name ?? "").toLowerCase();
-  const isShield = subtype.includes("shield") || armorType.includes("shield") || slot.includes("shield");
+  const text = [
+    getPropertySafe(item, `flags.${MODULE_ID}.armorCategory`),
+    getPropertySafe(item, "system.equipmentType"),
+    getPropertySafe(item, "system.equipmentSubtype"),
+    getPropertySafe(item, "system.equipmentSubType"),
+    getPropertySafe(item, "system.subType"),
+    getPropertySafe(item, "system.subtype"),
+    getPropertySafe(item, "system.armor.type"),
+    getPropertySafe(item, "system.armor.type.value"),
+    getPropertySafe(item, "system.armor.type.label"),
+    getPropertySafe(item, "system.armor.category"),
+    getPropertySafe(item, "system.armor.subType"),
+    getPropertySafe(item, "system.armorSubtype"),
+    getPropertySafe(item, "system.armorType"),
+    getPropertySafe(item, "system.slot"),
+    getPropertySafe(item, "system.baseTypes"),
+    getPropertySafe(item, "system.tags")
+  ].map(stringifyField).join(" ");
+
+  const isShield = /(^|\s|_|-)(shield|buckler|tower)(\s|_|-|$)/.test(text);
   if (isShield) return false;
-  return subtype.includes("armor") || armorType.includes("light") || armorType.includes("medium") || armorType.includes("heavy") || slot.includes("armor") || name.includes("armor");
+
+  if (/light\s*armor|lightarmor|medium\s*armor|mediumarmor|med\s*armor|medarmor|heavy\s*armor|heavyarmor/.test(text)) return true;
+  if (/(^|\s|_|-)armor(\s|_|-|$)/.test(text)) return true;
+  return false;
 }
 
 function getArmorCategory(item) {
-  const values = [
+  const manual = stringifyField(getPropertySafe(item, `flags.${MODULE_ID}.armorCategory`));
+  const text = [
+    manual,
+    getPropertySafe(item, "system.equipmentSubtype"),
+    getPropertySafe(item, "system.equipmentSubType"),
+    getPropertySafe(item, "system.equipmentType"),
     getPropertySafe(item, "system.armor.type"),
-    getPropertySafe(item, "system.armorType"),
+    getPropertySafe(item, "system.armor.type.value"),
+    getPropertySafe(item, "system.armor.type.label"),
     getPropertySafe(item, "system.armor.category"),
+    getPropertySafe(item, "system.armor.subType"),
+    getPropertySafe(item, "system.armorSubtype"),
+    getPropertySafe(item, "system.armorType"),
     getPropertySafe(item, "system.subType"),
-    getPropertySafe(item, "system.subtype")
-  ].map(v => String(v ?? "").toLowerCase()).join(" ");
-  if (values.includes("heavy")) return "heavy";
-  if (values.includes("medium")) return "medium";
+    getPropertySafe(item, "system.subtype"),
+    getPropertySafe(item, "system.baseTypes"),
+    getPropertySafe(item, "system.tags")
+  ].map(stringifyField).join(" ");
+
+  if (/(^|\s|_|-|\.)heavy(armor)?(\s|_|-|\.|$)|heavyarmor/.test(text)) return "heavy";
+  if (/(^|\s|_|-|\.)(medium|med)(armor)?(\s|_|-|\.|$)|mediumarmor|medarmor/.test(text)) return "medium";
+  if (/(^|\s|_|-|\.)light(armor)?(\s|_|-|\.|$)|lightarmor/.test(text)) return "light";
+
+  // Safe fallback: PF1e items that are armor but have no readable category are
+  // treated as light until the GM sets flags.armor-soak-pool.armorCategory on
+  // the item to "light", "medium", or "heavy".
   return "light";
 }
 
@@ -137,6 +181,8 @@ function getArmorBonus(item) {
   const candidates = [
     "system.armor.value",
     "system.armor.ac",
+    "system.armor.bonus",
+    "system.armor.total",
     "system.armorBonus",
     "system.acBonus",
     "system.attributes.ac.bonus",
@@ -150,10 +196,12 @@ function getArmorBonus(item) {
   }
   const enhancementCandidates = [
     "system.enh",
+    "system.enh.value",
     "system.enhancement",
     "system.enhancement.value",
     "system.magicBonus",
-    "system.armor.enh"
+    "system.armor.enh",
+    "system.armor.enhancement"
   ];
   let enhancement = 0;
   for (const path of enhancementCandidates) {
