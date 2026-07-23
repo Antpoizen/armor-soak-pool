@@ -1,6 +1,6 @@
 import { MODULE_ID } from "./constants.js";
 import { getSoakData, canControlActor } from "./data.js";
-import { recalculateSoak, refillSoak, setSoak, setSoakEnabled } from "./api.js";
+import { recalculateSoak, refillSoak, setSoak, setNaturalSoak } from "./api.js";
 
 export function registerActorSheetHooks() {
   Hooks.on("renderActorSheet", injectSoakPanel);
@@ -97,7 +97,9 @@ function activatePanelListeners(html, actor) {
     setSoak(actor, value);
   });
 
-  html.find(".armor-soak-enabled").on("change", ev => {
-    setSoakEnabled(actor, ev.currentTarget.checked);
+  html.find(".armor-soak-natural").on("change", ev => {
+    ev.preventDefault();
+    const value = Number(ev.currentTarget.value ?? 0);
+    setNaturalSoak(actor, value);
   });
 }

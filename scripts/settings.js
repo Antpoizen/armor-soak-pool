@@ -27,7 +27,7 @@ export function registerSettings() {
     default: REFILL_TIMINGS.START
   });
   registerBoolean(SETTINGS.DAMAGE_DIALOG, true, false);
-  registerBoolean(SETTINGS.PATCH_DAMAGE, false, true);
+  registerBoolean(SETTINGS.PATCH_DAMAGE, true, true);
   registerBoolean(SETTINGS.ARMOR_FOCUS, true, false);
   registerBoolean(SETTINGS.ARMOR_FOCUS_NATURAL, false, false);
   registerBoolean(SETTINGS.CHAT_DAMAGE, true, false);

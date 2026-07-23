@@ -40,6 +40,26 @@ export async function setSoak(actor, value, { chat = game.settings.get(MODULE_ID
   return data;
 }
 
+export async function setNaturalSoak(actor, value, { chat = game.settings.get(MODULE_ID, "chatAdjust"), reason = "manualNatural" } = {}) {
+  if (!actor || !canControlActor(actor, "adjust")) return null;
+  const old = getSoakData(actor);
+  const calculated = calc(actor);
+  const naturalSoak = clampNumber(value);
+  const max = clampNumber((calculated.armorSoak ?? 0) + naturalSoak);
+  const current = clampNumber(old.current, 0, game.settings.get(MODULE_ID, "allowOverflow") ? Number.MAX_SAFE_INTEGER : max);
+  const data = await setSoakFlagData(actor, {
+    ...calculated,
+    naturalSoak,
+    max,
+    current,
+    lastCalculated: old.lastCalculated
+  });
+  Hooks.callAll(HOOKS.ADJUSTED, actor, data, old, { reason });
+  if (chat) await renderSoakChatCard(actor, "adjust", { old, data, reason });
+  actor.sheet?.render(false);
+  return data;
+}
+
 export async function adjustSoak(actor, delta, options = {}) {
   const old = getSoakData(actor);
   return setSoak(actor, old.current + Number(delta || 0), options);
@@ -87,6 +107,7 @@ export const ArmorSoakPoolAPI = {
   calculateMaxSoak,
   recalculateSoak,
   setSoak,
+  setNaturalSoak,
   adjustSoak,
   refillSoak,
   applyDamageToSoak,

@@ -56,8 +56,8 @@
   "armor-soak-pool.settings.refillTiming.manual": "Manual Only",
   "armor-soak-pool.settings.damageDialog.name": "Enable Damage Dialog",
   "armor-soak-pool.settings.damageDialog.hint": "Enable the Armor Soak damage dialog for manual workflows.",
-  "armor-soak-pool.settings.patchDamage.name": "Experimental Damage Intercept",
-  "armor-soak-pool.settings.patchDamage.hint": "Optionally patch Actor.applyDamage to show the dialog. Leave disabled if it conflicts with Wounds/Vigor or other automation modules.",
+  "armor-soak-pool.settings.patchDamage.name": "Intercept PF1e / Automate Damage Application",
+  "armor-soak-pool.settings.patchDamage.hint": "Show the Armor Soak dialog when PF1e applies damage. This also supports PF1 Automate Damage chat-card application when that module is active.",
   "armor-soak-pool.settings.armorFocus.name": "Enable Armor Focus Feat Detection",
   "armor-soak-pool.settings.armorFocus.hint": "Detect Armor Focus, Improved Armor Focus, and Advanced Armor Focus by exact feat name.",
   "armor-soak-pool.settings.armorFocusNatural.name": "Armor Focus Affects Natural Armor",
@@ -102,5 +102,6 @@
   "armor-soak-pool.results.applyToSoak": "Apply to Soak",
   "armor-soak-pool.results.split": "Split Damage",
   "armor-soak-pool.results.damage": "Damage",
-  "armor-soak-pool.results.manual": "Manual"
+  "armor-soak-pool.results.manual": "Manual",
+  "armor-soak-pool.results.manualNatural": "Manual Natural Soak"
 }

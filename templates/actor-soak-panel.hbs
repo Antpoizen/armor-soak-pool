@@ -1,10 +1,6 @@
 <div class="armor-soak-panel" data-actor-id="{{actor.id}}">
   <div class="armor-soak-header">
     <h3><i class="fas fa-shield-alt"></i> {{localize "armor-soak-pool.panel.title"}}</h3>
-    <label class="armor-soak-toggle">
-      <span>{{localize "armor-soak-pool.fields.enabled"}}</span>
-      <input type="checkbox" class="armor-soak-enabled" {{checked enabled}}>
-    </label>
   </div>
 
   <div class="armor-soak-bar" role="meter" aria-valuemin="0" aria-valuemax="{{soak.max}}" aria-valuenow="{{soak.current}}">
@@ -19,9 +15,11 @@
     </label>
     <div class="armor-soak-stat"><strong>{{localize "armor-soak-pool.fields.max"}}</strong><span>{{soak.max}}</span></div>
     <div class="armor-soak-stat"><strong>{{localize "armor-soak-pool.fields.armorSoak"}}</strong><span>{{soak.armorSoak}}</span></div>
-    <div class="armor-soak-stat"><strong>{{localize "armor-soak-pool.fields.naturalSoak"}}</strong><span>{{soak.naturalSoak}}</span></div>
+    <label class="armor-soak-stat armor-soak-natural-row">
+      <strong>{{localize "armor-soak-pool.fields.naturalSoak"}}</strong>
+      <input class="armor-soak-natural" type="number" value="{{soak.naturalSoak}}" min="0" step="1" {{#unless canAdjust}}disabled{{/unless}}>
+    </label>
     <div class="armor-soak-stat"><strong>{{localize "armor-soak-pool.fields.multiplier"}}</strong><span>{{soak.armorMultiplier}}×</span></div>
-    <div class="armor-soak-stat"><strong>{{localize "armor-soak-pool.fields.armorAc"}}</strong><span>{{soak.armorAc}}</span></div>
   </div>
 
   <div class="armor-soak-actions">

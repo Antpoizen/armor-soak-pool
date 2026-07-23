@@ -1,6 +1,6 @@
 # PF1e Armor Soak Pool
 
-Version 1.0.3 for Foundry VTT v12 build 331 and Pathfinder 1e system v11.11.
+Version 1.0.4 for Foundry VTT v12 build 331 and Pathfinder 1e system v11.11.
 
 PF1e Armor Soak Pool adds a manual armor-based **Soak** pool to PF1e actors. It is designed for tables using Wounds and Vigor where Soak acts like a temporary shield layer that can absorb damage before Vigor or Wounds when the GM or player chooses to use it.
 
@@ -118,11 +118,11 @@ Soak is stored in actor flags. Foundry token resource bars work best with real a
 
 ## GitHub Release Setup
 
-For remote installation, create a GitHub release tagged `1.0.3` and upload these exact assets:
+For remote installation, create a GitHub release tagged `1.0.4` and upload these exact assets:
 
 ```text
 module.json
-PF1e-Armor-Soak-Pool-v1.0.3.zip
+PF1e-Armor-Soak-Pool-v1.0.4.zip
 ```
 
 Use this manifest URL in Foundry:
@@ -216,7 +216,7 @@ armorSoakPool.enabledChanged
 - Enable experimental damage intercept only in a backup world and verify there are no conflicts.
 
 
-## Version 1.0.3 Notes
+## Version 1.0.4 Notes
 
 This patch fixes a render/update loop that could spam Foundry issues and prevent the Soak panel from appearing. Recalculation now skips document updates when the calculated Soak values are unchanged, and flag data is saved with one actor update instead of many individual flag writes.
 
@@ -229,3 +229,12 @@ This patch fixes a render/update loop that could spam Foundry issues and prevent
 - Damage chat cards are whispered to active GMs and no longer show previous or maximum Soak.
 - Refill chat cards are whispered to active owners of the actor, or to active GMs if no player owns the actor.
 - Refill chat cards no longer show maximum Soak.
+
+
+### v1.0.4 Changes
+
+- Natural Soak is now manually editable on the actor sheet instead of being automatically calculated from natural armor and Hit Dice.
+- The Enabled checkbox was removed from the normal actor sheet panel because it was not useful during play.
+- The sheet panel was made more compact by removing the Armor AC display and tightening the stat grid.
+- Damage interception now targets PF1e's ActorPF applyDamage workflow and is enabled for PF1 Automate Damage chat-card workflows when that module is active.
+- The experimental damage intercept setting now defaults to enabled for new worlds.

@@ -22,7 +22,7 @@ Hooks.once("ready", async () => {
   registerActorSheetHooks();
   registerCombatHooks();
   registerManualMacroHelpers();
-  if (game.settings.get(MODULE_ID, "patchDamage")) patchActorDamageWorkflow();
+  if (game.settings.get(MODULE_ID, "damageDialog") && (game.settings.get(MODULE_ID, "patchDamage") || game.modules.get("pf1-automate-damage")?.active)) patchActorDamageWorkflow();
   await runMigration();
 });
 
@@ -41,40 +41,66 @@ function registerManualMacroHelpers() {
 }
 
 function patchActorDamageWorkflow() {
-  if (originalApplyDamage || !Actor.prototype) return;
-  const method = Actor.prototype.applyDamage ? "applyDamage" : null;
-  if (!method) {
+  if (originalApplyDamage) return;
+  const target = "pf1.documents.actor.ActorPF.prototype.applyDamage";
+
+  if (globalThis.libWrapper) {
+    try {
+      libWrapper.register(MODULE_ID, target, armorSoakApplyDamageWrapper, libWrapper.WRAPPER);
+      originalApplyDamage = "libWrapper";
+      console.log(`${MODULE_ID} | Damage intercept registered on ${target}.`);
+      return;
+    } catch (error) {
+      console.warn(`${MODULE_ID} | libWrapper damage intercept failed; trying direct fallback.`, error);
+    }
+  }
+
+  const proto = foundry.utils.getProperty(globalThis, "pf1.documents.actor.ActorPF.prototype") ?? Actor?.prototype;
+  if (!proto?.applyDamage) {
     ui.notifications.warn(game.i18n.localize(`${MODULE_ID}.warnings.noDamageHook`));
     return;
   }
-  originalApplyDamage = Actor.prototype[method];
-  Actor.prototype[method] = async function patchedApplyDamage(...args) {
-    if (!game.settings.get(MODULE_ID, "enabled") || !game.settings.get(MODULE_ID, "damageDialog")) return originalApplyDamage.call(this, ...args);
-    const maybeAmount = Number(args[0]?.damage ?? args[0]?.amount ?? args[0]);
-    if (!Number.isFinite(maybeAmount) || maybeAmount <= 0) return originalApplyDamage.call(this, ...args);
-    const result = await openDamageDialog(this, maybeAmount, { patched: true });
-    if (result === null) return null;
-    if (result?.normal) return originalApplyDamage.call(this, ...args);
-    if (result?.remaining > 0) {
-      const adjusted = adjustDamageArgs(args, result.remaining);
-      if (adjusted) return originalApplyDamage.call(this, ...adjusted);
-      ui.notifications.info(game.i18n.format(`${MODULE_ID}.info.splitRemaining`, { remaining: result.remaining }));
-      return result;
-    }
-    return result;
+  originalApplyDamage = proto.applyDamage;
+  proto.applyDamage = async function armorSoakDirectApplyDamage(value, config = {}) {
+    return handleArmorSoakApplyDamage(this, originalApplyDamage.bind(this), value, config);
   };
-  console.log(`${MODULE_ID} | Optional Actor.applyDamage patch enabled.`);
+  console.log(`${MODULE_ID} | Direct damage intercept enabled.`);
 }
 
-function adjustDamageArgs(args, remaining) {
-  const cloned = foundry.utils.deepClone(args);
-  if (typeof cloned[0] === "number") {
-    cloned[0] = remaining;
+async function armorSoakApplyDamageWrapper(wrapped, value, config = {}) {
+  return handleArmorSoakApplyDamage(this, wrapped.bind(this), value, config ?? {});
+}
+
+async function handleArmorSoakApplyDamage(actor, wrapped, value, config = {}) {
+  if (!game.settings.get(MODULE_ID, "enabled") || !game.settings.get(MODULE_ID, "damageDialog")) return wrapped(value, config);
+  if (config?._armorSoakPoolBypass || config?.healing) return wrapped(value, config);
+
+  const maybeAmount = Number(value?.damage ?? value?.amount ?? value);
+  if (!Number.isFinite(maybeAmount) || maybeAmount <= 0) return wrapped(value, config);
+
+  const result = await openDamageDialog(actor, maybeAmount, {
+    patched: true,
+    source: game.modules.get("pf1-automate-damage")?.active ? "pf1-automate-damage" : "pf1",
+    originalConfig: config
+  });
+
+  if (result === null) return null;
+  if (result?.normal) return wrapped(value, config);
+  if (result?.remaining > 0) {
+    const adjusted = adjustDamageValue(value, result.remaining);
+    return wrapped(adjusted, { ...config, _armorSoakPoolBypass: true });
+  }
+  return result;
+}
+
+function adjustDamageValue(value, remaining) {
+  if (typeof value === "number") return remaining;
+  if (typeof value === "object" && value !== null) {
+    const cloned = foundry.utils.deepClone(value);
+    if ("damage" in cloned) cloned.damage = remaining;
+    else if ("amount" in cloned) cloned.amount = remaining;
+    else return remaining;
     return cloned;
   }
-  if (typeof cloned[0] === "object" && cloned[0] !== null) {
-    if ("damage" in cloned[0]) { cloned[0].damage = remaining; return cloned; }
-    if ("amount" in cloned[0]) { cloned[0].amount = remaining; return cloned; }
-  }
-  return null;
+  return remaining;
 }

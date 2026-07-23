@@ -259,10 +259,13 @@ export function calculateMaxSoak(actor) {
     highestMultiplier = Math.max(highestMultiplier, multiplier);
     armorSoak += armorAc * multiplier;
   }
+  // Natural Soak is intentionally manual in v1.0.4. Natural armor and Hit
+  // Dice are still captured for GM reference/API diagnostics, but they no
+  // longer overwrite the editable Natural Soak field on actor sheets.
+  const stored = getSoakData(actor);
   const naturalArmor = getNaturalArmor(actor);
   const hitDice = getHitDice(actor);
-  let naturalSoak = naturalArmor > 0 ? Math.max(Math.floor(naturalArmor / 2), 1) * hitDice : 0;
-  if (naturalSoak > 0 && game.settings.get(MODULE_ID, "armorFocusNatural")) naturalSoak += focusStep * hitDice;
+  const naturalSoak = clampNumber(stored.naturalSoak ?? 0);
   return {
     max: clampNumber(armorSoak + naturalSoak),
     armorSoak: clampNumber(armorSoak),
