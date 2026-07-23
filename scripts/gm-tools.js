@@ -2,7 +2,7 @@ import { MODULE_ID } from "./constants.js";
 import { getSoakData, setSoakFlagData } from "./data.js";
 import { recalculateSoak, refillSoak } from "./api.js";
 
-export class ArmorSoakGMTools extends Application {
+export class ArmorSoakGMTools extends FormApplication {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "armor-soak-gm-tools",
@@ -28,6 +28,15 @@ export class ArmorSoakGMTools extends Application {
     html.find("[data-action='export']").on("click", () => this.exportData());
     html.find("[data-action='import']").on("click", () => this.importData());
     html.find("[data-action='reset-flags']").on("click", () => this.resetFlags());
+  }
+
+  /**
+   * Settings menus registered with game.settings.registerMenu in Foundry VTT v12
+   * must be backed by FormApplication or ApplicationV2. This app does not submit
+   * a form, but extending FormApplication keeps the menu compatible with v12.331.
+   */
+  async _updateObject(_event, _formData) {
+    return undefined;
   }
 
   async recalculateAll() {

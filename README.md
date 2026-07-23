@@ -1,6 +1,6 @@
 # PF1e Armor Soak Pool
 
-Version 1.0.0 for Foundry VTT v12 build 331 and Pathfinder 1e system v11.11.
+Version 1.0.1 for Foundry VTT v12 build 331 and Pathfinder 1e system v11.11.
 
 PF1e Armor Soak Pool adds a manual armor-based **Soak** pool to PF1e actors. It is designed for tables using Wounds and Vigor where Soak acts like a temporary shield layer that can absorb damage before Vigor or Wounds when the GM or player chooses to use it.
 
@@ -118,11 +118,11 @@ Soak is stored in actor flags. Foundry token resource bars work best with real a
 
 ## GitHub Release Setup
 
-For remote installation, create a GitHub release tagged `1.0.0` and upload these exact assets:
+For remote installation, create a GitHub release tagged `1.0.1` and upload these exact assets:
 
 ```text
 module.json
-PF1e-Armor-Soak-Pool-v1.0.0.zip
+PF1e-Armor-Soak-Pool-v1.0.1.zip
 ```
 
 Use this manifest URL in Foundry:
