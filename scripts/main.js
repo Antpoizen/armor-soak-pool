@@ -46,9 +46,13 @@ function patchActorDamageWorkflow() {
 
   if (globalThis.libWrapper) {
     try {
-      libWrapper.register(MODULE_ID, target, armorSoakApplyDamageWrapper, libWrapper.WRAPPER);
+      // The Soak dialog sometimes intentionally consumes the damage without passing it
+      // to PF1e (Apply to Soak / Cancel). libWrapper.WRAPPER requires the wrapped
+      // method to be called every time, so this must be MIXED.
+      const wrapperType = libWrapper.MIXED ?? libWrapper.WRAPPER;
+      libWrapper.register(MODULE_ID, target, armorSoakApplyDamageWrapper, wrapperType);
       originalApplyDamage = "libWrapper";
-      console.log(`${MODULE_ID} | Damage intercept registered on ${target}.`);
+      console.log(`${MODULE_ID} | Damage intercept registered on ${target} using libWrapper ${wrapperType === libWrapper.MIXED ? "MIXED" : "WRAPPER"}.`);
       return;
     } catch (error) {
       console.warn(`${MODULE_ID} | libWrapper damage intercept failed; trying direct fallback.`, error);
