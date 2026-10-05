@@ -1,8 +1,9 @@
 import { MODULE_ID } from "./constants.js";
 import { getSoakData, setSoakFlagData } from "./data.js";
 import { recalculateSoak, refillSoak } from "./api.js";
+import { DialogBase, FormApplicationBase, saveDataToFileCompat } from "./compat.js";
 
-export class ArmorSoakGMTools extends FormApplication {
+export class ArmorSoakGMTools extends FormApplicationBase {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       id: "armor-soak-gm-tools",
@@ -34,9 +35,9 @@ export class ArmorSoakGMTools extends FormApplication {
   }
 
   /**
-   * Settings menus registered with game.settings.registerMenu in Foundry VTT v12
+   * Settings menus registered with game.settings.registerMenu in Foundry VTT v13
    * must be backed by FormApplication or ApplicationV2. This app does not submit
-   * a form, but extending FormApplication keeps the menu compatible with v12.331.
+   * a form, but extending FormApplication keeps the menu compatible with v13.351.
    */
   async _updateObject(_event, _formData) {
     return undefined;
@@ -92,12 +93,12 @@ export class ArmorSoakGMTools extends FormApplication {
   exportData() {
     const data = Array.from(game.actors ?? []).map(actor => ({ id: actor.id, name: actor.name, flags: actor.flags?.[MODULE_ID] ?? {} }));
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    saveDataToFile(blob, "application/json", "armor-soak-pool-export.json");
+    saveDataToFileCompat(blob, "application/json", "armor-soak-pool-export.json");
   }
 
   importData() {
     const content = `<form><div class="form-group stacked"><label>${game.i18n.localize(`${MODULE_ID}.gmTools.importLabel`)}</label><textarea name="json" rows="10"></textarea></div></form>`;
-    new Dialog({
+    new DialogBase({
       title: game.i18n.localize(`${MODULE_ID}.gmTools.importTitle`),
       content,
       buttons: {
@@ -125,7 +126,7 @@ export class ArmorSoakGMTools extends FormApplication {
 
   async resetFlags() {
     if (!game.user.isGM) return;
-    const confirm = await Dialog.confirm({ title: game.i18n.localize(`${MODULE_ID}.gmTools.resetTitle`), content: `<p>${game.i18n.localize(`${MODULE_ID}.gmTools.resetConfirm`)}</p>` });
+    const confirm = await DialogBase.confirm({ title: game.i18n.localize(`${MODULE_ID}.gmTools.resetTitle`), content: `<p>${game.i18n.localize(`${MODULE_ID}.gmTools.resetConfirm`)}</p>` });
     if (!confirm) return;
     for (const actor of game.actors ?? []) await actor.update({ [`flags.-=${MODULE_ID}`]: null });
     this.render(false);

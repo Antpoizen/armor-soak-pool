@@ -1,6 +1,7 @@
 import { MODULE_ID } from "./constants.js";
 import { getSoakData, canControlActor } from "./data.js";
 import { recalculateSoak, refillSoak, setSoak, setNaturalSoak } from "./api.js";
+import { asJQuery, renderTemplateCompat } from "./compat.js";
 
 export function registerActorSheetHooks() {
   Hooks.on("renderActorSheet", injectSoakPanel);
@@ -11,7 +12,7 @@ async function injectSoakPanel(app, html, data) {
   const actor = app.actor;
   if (!actor) return;
 
-  const jq = html instanceof jQuery ? html : $(html);
+  const jq = asJQuery(html);
   jq.find(".armor-soak-panel").remove();
 
   // Recalculate on render for GMs so the displayed maximum follows armor, HD,
@@ -20,7 +21,7 @@ async function injectSoakPanel(app, html, data) {
 
   const soak = getSoakData(actor);
   const pct = soak.max > 0 ? Math.max(0, Math.min(100, Math.round((soak.current / soak.max) * 100))) : 0;
-  const content = await renderTemplate(`modules/${MODULE_ID}/templates/actor-soak-panel.hbs`, {
+  const content = await renderTemplateCompat(`modules/${MODULE_ID}/templates/actor-soak-panel.hbs`, {
     actor,
     soak,
     pct,

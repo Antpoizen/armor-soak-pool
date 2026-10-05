@@ -1,6 +1,11 @@
 # PF1e Armor Soak Pool
 
-Version 1.0.5 for Foundry VTT v12 build 331 and Pathfinder 1e system v11.11.
+Version 1.1.1 for Foundry VTT v13.351 and Pathfinder 1e system v11.11.
+
+
+## Version 1.1.1 Compatibility Update
+
+This release updates the module metadata and documentation for Foundry VTT **13.351** while keeping PF1e **11.11** as the target Pathfinder 1e system. No gameplay behavior was intentionally changed from v1.0.5.
 
 PF1e Armor Soak Pool adds a manual armor-based **Soak** pool to PF1e actors. It is designed for tables using Wounds and Vigor where Soak acts like a temporary shield layer that can absorb damage before Vigor or Wounds when the GM or player chooses to use it.
 
@@ -122,7 +127,7 @@ For remote installation, create a GitHub release tagged `1.0.5` and upload these
 
 ```text
 module.json
-PF1e-Armor-Soak-Pool-v1.0.5.zip
+PF1e-Armor-Soak-Pool-v1.1.1.zip
 ```
 
 Use this manifest URL in Foundry:
@@ -199,7 +204,7 @@ armorSoakPool.enabledChanged
 - The module is manual-first. Automatic attack resolution is intentionally not included.
 - Experimental damage interception is disabled by default and should only be enabled after testing with your Wounds/Vigor and mitigation modules.
 - Token bar support is not forced because the module stores data in flags rather than PF1e system resource paths.
-- This package was statically checked and built for Foundry VTT v12 build 331 and PF1e v11.11, but it still needs in-world testing in your Foundry installation.
+- This package was statically checked and built for Foundry VTT v13.351 and PF1e v11.11, but it still needs in-world testing in your Foundry installation.
 
 ## Testing Checklist
 
@@ -216,7 +221,7 @@ armorSoakPool.enabledChanged
 - Enable experimental damage intercept only in a backup world and verify there are no conflicts.
 
 
-## Version 1.0.5 Notes
+## Version 1.1.1 Notes
 
 This patch fixes a render/update loop that could spam Foundry issues and prevent the Soak panel from appearing. Recalculation now skips document updates when the calculated Soak values are unchanged, and flag data is saved with one actor update instead of many individual flag writes.
 
@@ -232,7 +237,7 @@ This patch fixes a render/update loop that could spam Foundry issues and prevent
 
 
 
-### v1.0.5 Changes
+### v1.1.1 Changes
 
 - Fixed the PF1e damage intercept when libWrapper is active.
 - Changed the `pf1.documents.actor.ActorPF.prototype.applyDamage` registration from a strict libWrapper `WRAPPER` to `MIXED`, because applying damage entirely to Soak or canceling the dialog intentionally prevents the original PF1e damage call from continuing.
@@ -244,3 +249,8 @@ This patch fixes a render/update loop that could spam Foundry issues and prevent
 - The sheet panel was made more compact by removing the Armor AC display and tightening the stat grid.
 - Damage interception now targets PF1e's ActorPF applyDamage workflow and is enabled for PF1 Automate Damage chat-card workflows when that module is active.
 - The experimental damage intercept setting now defaults to enabled for new worlds.
+
+
+## Foundry v13 compatibility pass
+
+Version 1.1.1 performs a code-level compatibility pass for Foundry VTT 13.351. It uses compatibility helpers for legacy Application V1 classes, Dialog, FilePicker, template rendering, file export, and render-hook HTML normalization while keeping PF1e 11.11 as the target system.

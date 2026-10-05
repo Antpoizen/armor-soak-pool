@@ -11,7 +11,7 @@ let originalApplyDamage = null;
 Hooks.once("init", () => {
   registerSettings();
   game.modules.get(MODULE_ID).api = ArmorSoakPoolAPI;
-  console.log(`${MODULE_ID} | Initialized for Foundry VTT v12 build 331 and PF1e 11.11.`);
+  console.log(`${MODULE_ID} | Initialized for Foundry VTT v13.351 and PF1e 11.11.`);
 });
 
 Hooks.once("ready", async () => {
@@ -59,7 +59,7 @@ function patchActorDamageWorkflow() {
     }
   }
 
-  const proto = foundry.utils.getProperty(globalThis, "pf1.documents.actor.ActorPF.prototype") ?? Actor?.prototype;
+  const proto = foundry.utils.getProperty(globalThis, "pf1.documents.actor.ActorPF.prototype") ?? globalThis.Actor?.prototype;
   if (!proto?.applyDamage) {
     ui.notifications.warn(game.i18n.localize(`${MODULE_ID}.warnings.noDamageHook`));
     return;

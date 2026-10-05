@@ -1,6 +1,7 @@
 import { MODULE_ID } from "./constants.js";
 import { applyDamageToSoak, setSoak } from "./api.js";
 import { canControlActor, clampNumber, getSoakData } from "./data.js";
+import { DialogBase, renderTemplateCompat } from "./compat.js";
 
 export async function openDamageDialog(actor, amount = 0, options = {}) {
   if (!actor) return null;
@@ -10,9 +11,9 @@ export async function openDamageDialog(actor, amount = 0, options = {}) {
   }
   amount = clampNumber(amount);
   const data = getSoakData(actor);
-  const content = await renderTemplate(`modules/${MODULE_ID}/templates/damage-dialog.hbs`, { actor, amount, data, options });
+  const content = await renderTemplateCompat(`modules/${MODULE_ID}/templates/damage-dialog.hbs`, { actor, amount, data, options });
   return new Promise((resolve) => {
-    const dialog = new Dialog({
+    const dialog = new DialogBase({
       title: game.i18n.format(`${MODULE_ID}.dialogs.damage.title`, { name: actor.name }),
       content,
       buttons: {
@@ -61,7 +62,7 @@ export async function openManualAdjustDialog(actor) {
     <div class="form-group"><label>${game.i18n.localize(`${MODULE_ID}.fields.current`)}</label><input type="number" name="current" value="${data.current}" min="0" step="1"></div>
     <div class="form-group"><label>${game.i18n.localize(`${MODULE_ID}.fields.delta`)}</label><input type="number" name="delta" value="0" step="1"></div>
   </form>`;
-  return new Dialog({
+  return new DialogBase({
     title: game.i18n.format(`${MODULE_ID}.dialogs.adjust.title`, { name: actor.name }),
     content,
     buttons: {

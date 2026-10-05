@@ -1,5 +1,6 @@
 import { MODULE_ID } from "./constants.js";
 import { getActorName } from "./data.js";
+import { renderTemplateCompat } from "./compat.js";
 
 function activeGmWhisperIds() {
   const active = game.users.filter(u => u.isGM && u.active).map(u => u.id);
@@ -29,7 +30,7 @@ export async function renderSoakChatCard(actor, type, payload = {}) {
   const absorbed = Number(payload.absorbed ?? 0);
   const overflow = Number(payload.overflow ?? 0);
   const restored = Math.max(0, Number(data.current ?? 0) - Number(old.current ?? 0));
-  const html = await renderTemplate(template, {
+  const html = await renderTemplateCompat(template, {
     type,
     title: game.i18n.localize(titleKey),
     actorName: getActorName(actor),
